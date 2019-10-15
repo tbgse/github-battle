@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { getPopularRepos } from '../utils/api'
+import PropTypes from 'prop-types'
 
 const Container = styled.nav`
   display:flex;
@@ -22,6 +23,24 @@ const NavButton = styled.button`
     color:${props => props.active ? 'tomato' : 'rgba(0,0,0,0.75)'};
   }
 `
+
+function LanguageNav ({ selectedLanguage, onUpdateLanguage}) {
+  const languages = ['All', 'Javascript', 'Ruby', 'Java', 'CSS', 'Python']
+
+  const MenuItems = languages.map(lang => <NavButton key={lang} onClick={() => onUpdateLanguage(lang)} active={selectedLanguage === lang}>{lang}</NavButton>)
+
+  return (
+    <Container>
+      {MenuItems}
+    </Container>
+  )
+}
+
+LanguageNav.propTypes= {
+  selectedLanguage: PropTypes.string.isRequired,
+  onUpdateLanguage: PropTypes.func.isRequired
+}
+
 export default class Popular extends React.Component {
   constructor (props) {
     super(props)
@@ -41,14 +60,10 @@ export default class Popular extends React.Component {
 
   render () {
     const { selectedLanguage } = this.state
-    const languages = ['All', 'Javascript', 'Ruby', 'Java', 'CSS', 'Python']
-
-    const MenuItems = languages.map(lang => <NavButton key={lang} onClick={() => this.updateLanguage(lang)} active={selectedLanguage === lang}>{lang}</NavButton>)
-
     return (
-      <Container>
-        {MenuItems}
-      </Container>
+    <React.Fragment>
+      <LanguageNav selectedLanguage={selectedLanguage} onUpdateLanguage={this.updateLanguage}/>
+    </React.Fragment>
     )
   }
 }
