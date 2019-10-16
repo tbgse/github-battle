@@ -2,10 +2,18 @@ import React from 'react'
 import styled from 'styled-components'
 import { getPopularRepos } from '../utils/api'
 import PropTypes from 'prop-types'
+import RepoCard from './RepoCard'
 
 const Container = styled.nav`
   display:flex;
   align-items:center;
+`
+const RepoWrapper = styled.ul`
+  display:flex;
+  list-style:none;
+  flex-wrap:wrap;
+  margin-left:-20px;
+  padding:0;
 `
 
 const NavButton = styled.button`
@@ -23,6 +31,31 @@ const NavButton = styled.button`
     color:${props => props.active ? 'tomato' : 'rgba(0,0,0,0.75)'};
   }
 `
+const PlaceHolderCard = styled.div`
+  flex: 1 1;
+  margin-left:20px;
+  min-width:200px;
+`
+function RepoGrid ({repoList}) {
+  return (
+    <RepoWrapper>
+      {/* <pre>{JSON.stringify(repoList, null, 2)}</pre> */}
+      {repoList.map(repo => 
+        <RepoCard
+          repo={repo}
+          key={repo.id}
+        />
+      )}
+      <PlaceHolderCard/>
+      <PlaceHolderCard/>
+      <PlaceHolderCard/>
+    </RepoWrapper>
+  )
+}
+
+RepoGrid.propTypes = {
+  repoList: PropTypes.array.isRequired
+}
 
 function LanguageNav ({ selectedLanguage, onUpdateLanguage}) {
   const languages = ['All', 'Javascript', 'Ruby', 'Java', 'CSS', 'Python']
@@ -97,7 +130,7 @@ export default class Popular extends React.Component {
       <LanguageNav selectedLanguage={selectedLanguage} onUpdateLanguage={this.updateLanguage}/>
       {this.isLoading() && <p>Loading...</p>}
       {error && <p>{error}</p>}
-      {repos && <pre>{JSON.stringify(repos[selectedLanguage], null, 2)}</pre>}
+      {repos[selectedLanguage] && <RepoGrid repoList={repos[selectedLanguage]}/>}
     </React.Fragment>
     )
   }
