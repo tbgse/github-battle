@@ -46,23 +46,58 @@ export default class Popular extends React.Component {
     super(props)
 
     this.state = {
-      selectedLanguage: 'All'
+      selectedLanguage: 'All',
+      error: null,
+      repos: {}
     }
 
     this.updateLanguage = this.updateLanguage.bind(this)
+    this.isLoading = this.isLoading.bind(this)
   }
 
   updateLanguage (selectedLanguage) {
     this.setState({
-      selectedLanguage
+      selectedLanguage,
+      error: null
     })
+    
+    if (!this.state.repos[selectedLanguage]) {
+      getPopularRepos(selectedLanguage)
+        .then(data => this.setState(({ repos }) => {
+          return {
+            repos: {
+              ...repos,
+              [selectedLanguage]: data
+            }
+          }
+        }))
+        .catch(err => {
+          console.warn(`Error fetching repos: ${err}`)
+
+          this.setState({
+            error: 'There was an error fetching the repositories.'
+          })
+        })
+    }
+  }
+
+  isLoading () {
+    const { error, repos, selectedLanguage } = this.state
+    return error === null && !repos.hasOwnProperty(selectedLanguage)
+  }
+
+  componentDidMount () {
+    this.updateLanguage(this.state.selectedLanguage)    
   }
 
   render () {
-    const { selectedLanguage } = this.state
+    const { selectedLanguage, repos, error } = this.state
     return (
     <React.Fragment>
       <LanguageNav selectedLanguage={selectedLanguage} onUpdateLanguage={this.updateLanguage}/>
+      {this.isLoading() && <p>Loading...</p>}
+      {error && <p>{error}</p>}
+      {repos && <pre>{JSON.stringify(repos[selectedLanguage], null, 2)}</pre>}
     </React.Fragment>
     )
   }
